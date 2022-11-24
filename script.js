@@ -1,79 +1,60 @@
-//define variables
+var xstart = 100
+var ystart = 300
+var size = 20
+var xspeed =size
+var yspeed = 0
 
-// first value is x, second is y
-const ball_pos = [200, 200];
-
-// first value is vertical, second is horizontal
-const ball_dir = [-8, -8];
-
-// ball radius
-let ball_r = 25;
-
-// game status, 0 is inactive, 1 is active
-let game = 1;
-
-//game score
-let score = 0;
-
-// make opponent area variable global
-const opponent_area = new Array;
+function getRandomInt(max) {
+  return Math.floor(Math.random() * max);
+}
 
 function setup() {
     createCanvas(400, 400);
-    background(0);
+    background(255);
+    frameRate(5);
 }
+
+class bodypart {
+    constructor(xpos, ypos, size, color=(0, 255, 0)) {
+        this.xpos = xpos;
+        this.ypos = ypos;
+        this.size = size;
+        this.color = color;
+    }
+
+    draw() {
+        fill(this.color);
+        square(this.xpos, this.ypos, this.size)
+    }
+}
+
+var snake = [
+    new bodypart(xstart, ystart, size),
+    new bodypart(xstart + size, ystart, size),
+    new bodypart(xstart + size * 2, ystart, size),
+]
 
 function draw() {
-    background(0);
-
-    if (game === 1) {
-        //draw ball
-        fill(255);
-        circle(ball_pos[0], ball_pos[1], ball_r * 2);
-
-        //move ball
-        ball_pos[0] += ball_dir[0];
-        ball_pos[1] += ball_dir[1];
-
-        //load paddles
-        opponent();
-        opponent2();
-
-
-        //check for collisions
-        collisions();
-
-    } else if (game === 0) {
-        //show score
-        textSize(32);
-        fill(255);
-        text(score, 10, 30);
+    background(255);
+    for (var i = 0; i < snake.length; i++) {
+        snake[i].draw();
     }
+    snake.unshift(new bodypart(snake[0].xpos + xspeed, snake[0].ypos + yspeed, size));
+    snake.pop();
 }
 
-function collisions() {
-    //check if ball is hitting the top/bottom, and proceed to bounce it
-    if (ball_pos[1] + ball_r >= height || ball_pos[1] - ball_r <= 0) {
-        ball_dir[1] *= -1;
+function keyPressed() {
+    if ((keyCode === UP_ARROW || keyCode === 87) && yspeed != size) {
+        xspeed = 0;
+        yspeed = -size;
+    } else if ((keyCode === DOWN_ARROW  || keyCode === 83) && yspeed != -size) {
+        xspeed = 0;
+        yspeed = size;
+    } else if ((keyCode === LEFT_ARROW  || keyCode === 65) && xspeed != size ){
+        xspeed = -size;
+        yspeed = 0;
+    } else if ((keyCode === RIGHT_ARROW  || keyCode === 68) && xspeed != -size ) {
+        xspeed = size;
+        yspeed = 0;
     }
-
-    //check if ball is hitting opponent and bounce ball in opposite trajectory
-    if (ball_pos[0] <= 45 && ball_pos[1] >= opponent_area[0] && ball_pos[1] <= opponent_area[1]) {
-        ball_dir[0] *= -1;
-    } else if (ball_pos[0] >= 355) {
-        ball_dir[0] *= -1;
-    }
-}
-
-function opponent() {
-    fill(255);
-    rect(10, ball_pos[1] - 50, 10, 100);
-    opponent_area[0, 1] = [ball_pos[1] + 50, ball_pos[1] - 50]
-}
-
-
-function opponent2() {
-    fill(255);
-    rect(380, ball_pos[1] - 50, 10, 100);
-    opponent_area = [ball_pos[1] + 50, ball_pos[1] - 50]
 }
